@@ -1,0 +1,78 @@
+local ServerStorage = game:GetService("ServerStorage")
+local stove = script.Parent
+
+local RAW_MEAT_NAME = "meat1"
+local COOKED_NAME = "blue"
+
+local foodPart = nil 
+
+local prompt = Instance.new("ProximityPrompt")
+prompt.Parent = stove
+prompt.ActionText = "วาง"
+prompt.ObjectText = "หม้อ"
+prompt.HoldDuration = 1
+prompt.RequiresLineOfSight = false
+prompt.MaxActivationDistance = 2
+
+prompt.Triggered:Connect(function(player)
+	local character = player.Character
+	if not character then return end
+
+	local humanoid = character:FindFirstChild("Humanoid")
+	if not humanoid then return end
+
+	if foodPart then
+		local cookedTool = ServerStorage:FindFirstChild(COOKED_NAME)
+		if cookedTool then
+			local toolClone = cookedTool:Clone()
+			toolClone.Parent = player.Backpack
+			humanoid:EquipTool(toolClone)
+		end
+
+		foodPart:Destroy()
+		foodPart = nil
+		prompt.ActionText = "วาง"
+		return
+	end
+
+	
+	local meatTool = character:FindFirstChild(RAW_MEAT_NAME)
+	if not meatTool then return end
+
+	local handle = meatTool:FindFirstChild("Handle")
+	if not handle then return end
+
+	local rawPart = handle:Clone()
+	rawPart.Parent = workspace
+	rawPart.CFrame = stove.CFrame * CFrame.new(0, 0.5, 0)
+	rawPart.Anchored = true
+	rawPart.CanCollide = false
+
+	meatTool:Destroy()
+	foodPart = rawPart
+	prompt.Enabled = false
+
+	=
+	task.wait(5)
+
+	if foodPart then
+		foodPart:Destroy()
+	end
+
+	local cookedTool = ServerStorage:FindFirstChild(COOKED_NAME)
+	if not cookedTool then return end
+
+	local cookedHandle = cookedTool:FindFirstChild("Handle")
+	if not cookedHandle then return end
+
+	local cookedPart = cookedHandle:Clone()
+	cookedPart.Parent = workspace
+	cookedPart.CFrame = stove.CFrame * CFrame.new(0, 0.5, 0)
+	cookedPart.Anchored = true
+	cookedPart.CanCollide = false
+
+	foodPart = cookedPart
+	prompt.Enabled = true
+	prompt.ActionText = "หยิบ"
+end)
+  
